@@ -1,0 +1,41 @@
+[
+  {
+    "group": "other_chat",
+    "draft": "the_12_percent_problem",
+    "run": 0,
+    "same_author": 0.8,
+    "voice": 2.69,
+    "structure": 2.93,
+    "hook": 2.63,
+    "news_format": 2.99,
+    "closing": 1.91,
+    "business_value": 3.2,
+    "input_tokens": 21510
+  },
+  {
+    "group": "other_chat",
+    "draft": "the_12_percent_problem",
+    "run": 2,
+    "same_author": 0.82,
+    "voice": 2.69,
+    "structure": 2.93,
+    "hook": 2.73,
+    "news_format": 2.99,
+    "closing": 1.85,
+    "business_value": 3.21,
+    "input_tokens": 21510
+  },
+  {
+    "group": "other_chat",
+    "draft": "the_12_percent_problem",
+    "run": 1,
+    "same_author": 0.81,
+    "voice": 2.72,
+    "structure": 2.99,
+    "hook": 2.61,
+    "news_format": 3.09,
+    "closing": 1.96,
+    "business_value": 3.28,
+    "input_tokens": 21510
+  }
+]

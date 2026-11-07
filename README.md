@@ -35,6 +35,9 @@ python3 scripts/fetch_issues.py issues   # download the real issues (kept out of
 cp .env.example .env                     # then paste your TypeSafe API key into .env
 python3 scripts/judge.py --dry-run       # check what will be sent
 python3 scripts/judge.py --runs 3        # score every draft 3 times
+python3 scripts/judge.py --blind         # hide names, company and emails first
 ```
+
+Use `--blind` to measure style alone. Without it, Jev gives credit just for seeing "Dean" and "Bridge AI": filling in the names on a draft raised its same-author score from 0.80 to 0.91 with no other changes. Blind mode replaces names, the company, titles and emails with placeholders in both the drafts and the reference issues.
 
 Results are saved in `eval/results/`. No dependencies beyond Python 3.

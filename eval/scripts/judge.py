@@ -5,6 +5,7 @@ Usage:
     python3 scripts/judge.py            # score everything in candidates/
     python3 scripts/judge.py --dry-run  # show what would be sent, no API calls
     python3 scripts/judge.py --runs 3   # repeat each draft 3 times (reference order reshuffled)
+    python3 scripts/judge.py --blind    # hide names, company and emails so only style is scored
 
 Folder layout (relative to the eval folder):
     issues/                 all 12 real issues (download with scripts/fetch_issues.py;
@@ -35,12 +36,37 @@ HOLDOUT = {
 }
 
 
+# Swapped out in --blind mode so Jev judges style, not who is named.
+# Order matters: longer names first.
+BLIND_SWAPS = [
+    (r"[\w.]+@bridgeaiconsulting\.com", "[EMAIL]"),
+    (r"(?:www\.)?bridgeaiconsulting\.com", "[WEBSITE]"),
+    (r"\bBridge AI Consulting\b", "[COMPANY]"),
+    (r"\bBridge AI\b", "[COMPANY]"),
+    (r"\bDean Mazlish\b", "[AUTHOR]"),
+    (r"\bTim Diemer\b", "[AUTHOR]"),
+    (r"\bDean\b", "[AUTHOR]"),   # case-sensitive, so "their dean" is left alone
+    (r"\bTim\b", "[AUTHOR]"),
+    (r"\bCOO\b", "[TITLE]"),
+    (r"\bFounder & CEO\b", "[TITLE]"),
+]
+BLIND = False
+
+
+def anonymize(text: str) -> str:
+    for pattern, swap in BLIND_SWAPS:
+        text = re.sub(pattern, swap, text)
+    return text
+
+
 def clean(text: str) -> str:
     """Remove things that would give away the source rather than the style."""
     text = re.sub(r"\[\]\([^)]*\)", "", text)                  # image links
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)       # keep link text, drop URL
     text = re.sub(r"https?://\S+", "", text)                    # bare URLs
     text = re.sub(r"^Date: .*$", "", text, flags=re.M)          # date line
+    if BLIND:
+        text = anonymize(text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
@@ -155,14 +181,18 @@ def main():
     ap.add_argument("--runs", type=int, default=1)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--only", help="score only this candidates group")
+    ap.add_argument("--blind", action="store_true", help="hide names, company and emails")
     args = ap.parse_args()
+    global BLIND
+    BLIND = args.blind
 
     refs, held = load_issues()
     cands = held + [(p.parent.name, p) for p in sorted(CANDIDATES.glob("*/*.md"))]
     cands = [(g, p) for g, p in cands if not args.only or g == args.only]
     if not cands:
         sys.exit(f"No drafts found in {CANDIDATES}/<group>/*.md")
-    print(f"{len(refs)} reference issues, {len(cands)} drafts, {args.runs} run(s) each")
+    mode = "names hidden" if BLIND else "names shown"
+    print(f"{len(refs)} reference issues, {len(cands)} drafts, {args.runs} run(s) each, {mode}")
 
     if args.dry_run:
         words = sum(len(r.split()) for r in refs)
@@ -185,9 +215,9 @@ def main():
         print(f"[{i}/{len(jobs)}] {row['group']}/{row['draft']}: same_author={row['same_author']:.2f}")
 
     RESULTS.mkdir(exist_ok=True)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S") + ("-blind" if BLIND else "")
     (RESULTS / f"{stamp}.json").write_text(json.dumps(rows, indent=2))
-    summary = summarize(rows)
+    summary = f"Mode: {mode}\n\n" + summarize(rows)
     (RESULTS / f"{stamp}-summary.md").write_text(summary)
     print("\n" + summary)
     print(f"Saved to results/{stamp}.json and results/{stamp}-summary.md")
