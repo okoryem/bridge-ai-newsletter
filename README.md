@@ -9,6 +9,14 @@ A Claude skill that writes the weekly Bridge AI newsletter, plus a test that sco
 - `bridge-ai-newsletter-analysis.md`: notes on the structure, voice and themes of the 12 published issues.
 - `eval/`: a test that uses [Jev](https://typesafe.ai) by TypeSafe AI to score how closely a draft matches the real newsletter, plus a format checker.
 
+## Design choices
+
+- **Writes a finished issue on its own.** One prompt in, a complete, ready-to-publish issue out. It doesn't stop to ask questions or leave gaps.
+- **Never invents Dean's experiences, clients or announcements.** Openings use the week's news, a number, a pop-culture or historical comparison, or a clearly hypothetical scene instead. Hiring, training or newsletter announcements appear only when asked for.
+- **Adds "Notes for Dean" after the issue.** A short list of where one of his own stories would make it stronger, which numbers to double-check, and an image idea. It's separate from the newsletter, so the issue can be published as is.
+- **Needs web search.** Every story comes from the past seven days with a source link. Without search it says so rather than writing news from memory.
+- **Reuses the fixed parts word for word** (sign-off, contact line, referral box) and writes everything else fresh, without repeating lines from past issues.
+
 ## Results so far
 
 Names hidden (`--blind`), averaged over 2 runs. `same_author` is 0 to 1; the average score is 0 to 4 across voice, structure, hook, news format, closing and business focus.
@@ -22,6 +30,8 @@ Names hidden (`--blind`), averaged over 2 runs. `same_author` is 0 to 1; the ave
 | Generic AI newsletters (2) | 0.09-0.10 | 0.94-1.04 | |
 
 Every news story in the skill drafts was checked against its source: all were real and correctly dated.
+
+**Limits of the test:** Jev reliably separates Dean-like drafts from plain Claude and generic newsletters. It can't rank drafts that are all very close to Dean: the top group (skill drafts and real issues) sits within about 0.1 points, which is about the run-to-run variation. Jev also scores style, not facts, so stories were fact-checked separately.
 
 ## How the test works
 
