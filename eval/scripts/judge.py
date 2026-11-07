@@ -61,6 +61,7 @@ def anonymize(text: str) -> str:
 
 def clean(text: str) -> str:
     """Remove things that would give away the source rather than the style."""
+    text = re.split(r"\n-{3,}\s*\n+\**Notes for Dean", text)[0]  # editor notes aren't part of the issue
     text = re.sub(r"\[\]\([^)]*\)", "", text)                  # image links
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)       # keep link text, drop URL
     text = re.sub(r"https?://\S+", "", text)                    # bare URLs
