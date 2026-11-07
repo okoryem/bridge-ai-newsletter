@@ -1,0 +1,11 @@
+# Dean's newsletter issues: kept locally, not republished. Re-download with eval/scripts/fetch_issues.py
+eval/issues/
+
+# API keys
+.env
+*.env
+
+# Python / OS clutter
+__pycache__/
+*.pyc
+.DS_Store
